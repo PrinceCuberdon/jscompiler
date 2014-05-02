@@ -43,13 +43,23 @@ def replace_strings(content):
     """
     Replace all strings with our to avoid possible conflict.
     """
-    fall = re.findall(r''''.*?'|".*?"''', content)
+    find_all = re.findall(r''''.*?'|".*?"''', content)
     count = 0
-    for stri in fall:
+    for stri in find_all:
         content = content.replace(stri, '__{%d}__' % count)
         count += 1
         
-    return content, fall
+    return content, find_all
+
+
+def put_strings(content, string_list):
+    """ Put the stored strings
+    """
+    count = 0
+    for s in string_list:
+        content = content.replace('__{%d}__' % count, s)
+        count += 1
+    return content
 
 
 def strip_empty_lines(content):
@@ -65,56 +75,45 @@ def strip_empty_lines(content):
     return content
 
 
-def put_strings(content, string_list):
-    """ Put the stored strings
-    """
-    count = 0
-    for s in string_list:
-        content = content.replace('__{%d}__' % count, s)
-        count += 1
-    return content
-
-
 def strip_comments(content):
     """ Remove C and C++ comments.
-    To avoid problem, strings are stored, then the file processed
     """
-    take_care = re.findall(r"""(['|"].*?//.*?['|"])""", content)
-    count = 0
-    for str_to_takecare in take_care:
-        content = re.sub(str_to_takecare, '__{%d}__' % count, content) 
-        count += 1
+    # take_care = re.findall(r"""(['|"].*?//.*?['|"])""", content)
+    # count = 0
+    # for str_to_takecare in take_care:
+    #     content = re.sub(str_to_takecare, '__{%d}__' % count, content)
+    #     count += 1
         
     # I can't find how to replace C like comment in a single pass
+    for found in re.findall(r'//.*?\n|/\*.*?\*/', content, re.DOTALL):
+        content = content.replace(found, "")
+    return content
+
     content = re.sub(r'/\*.*?\*/', '', content, re.DOTALL)
     
     for comment in re.findall(r'/\*.*\*/', content, re.DOTALL):
         content = content.replace(comment, '')
         
-    content = re.sub(r'//.*?\n', '', content)
-    for str_to_takecare in range(len(take_care)):
-        content = re.sub(r'__{(%d)}__' % str_to_takecare,
-                         take_care[str_to_takecare], content)
-    
+    # content = re.sub(r'//.*?\n', '', content)
+    # for str_to_takecare in range(len(take_care)):
+    #     content = re.sub(r'__{(%d)}__' % str_to_takecare,
+    #                      take_care[str_to_takecare], content)
+    #
     return content
 
 
-def remove_windows_eol(content):
-    """ Remove windows end of line if exists
-    """
-    return re.sub(r'\r', '', content)
-
-
 def remove_semi_colon(content):
-    """ Remove semicolon at the end of the file
+    """ Remove semicolon at the end of the line if the line is empty and double semicolon
     """
-    return re.sub(r'[\n|\r\n];', '', content)
-
+    # remove double semi-colon
+    while content.find(';;') > -1:
+        content = re.sub(r";;", ";", content)
+    return content
 
 def remove_eol(content):
     """ Remove the end of line
     """
-    return re.sub(r'\n', '', content)
+    return re.sub(r'\r|\r\n|\n', '', content)
 
 
 def remove_unneeded_semi_colon(content):
@@ -169,6 +168,7 @@ def get_javascript_files(path):
     _files = []
     if not os.path.exists(path):
         raise Exception(path + " don't exists")
+
     for a_file in os.listdir(path):
         a_file = os.path.join(path, a_file)
         name, ext = os.path.splitext(a_file)
@@ -206,25 +206,22 @@ def process_files(file_list):
             _size_before += len(content)
             
             if not args.merge:
-                verbose("Strip comments")
-                content = strip_comments(content)
-                
                 verbose('Substitute strings to avoid conflict')
                 content, string_list = replace_strings(content)
-            
+
+                verbose("Strip comments")
+                content = strip_comments(content)
+
                 verbose("Strip empty lines")
                 content = strip_empty_lines(content)
 
                 verbose('remove unuseful semi colon')
                 content = remove_semi_colon(content)
-                
-                verbose('Remove MS-Windows end of line')
-                content = remove_windows_eol(content)
-                
+
                 verbose('Remove trailing slashes for multi line strings')
                 content = remove_trailing_slashes(content)
                 
-                verbose('Remove Unix End Of Line')        
+                verbose('Remove End Of Line')
                 content = remove_eol(content)
                 
                 verbose('remove unneeded semi colon')
