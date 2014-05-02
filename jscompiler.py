@@ -241,7 +241,7 @@ def process_files(file_list):
             verbose('Done')
         except IOError as e:
             sys.stderr.write("%s\n" % e)
-    return size_before, _output
+    return _size_before, _output
 
 
 def write_colored(status, string):
