@@ -238,7 +238,10 @@ if __name__ == '__main__':
     # Parse arguments
     global args
     args = parser.parse_args()
-    
+
+    if len(sys.argv) == 1:
+        sys.exit("You might at least give an arguement")
+
     if args.directory and args.input:
         sys.exit('--directory and --input exclude one each other')
 
@@ -288,7 +291,6 @@ if __name__ == '__main__':
          
         size_before, output = process_files(files)   
 
-        
         if args.output:
             open(args.output, "w").write(output)
         else:
