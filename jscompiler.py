@@ -30,9 +30,11 @@ __version__ = '0.1'
 __author__ = u"Prince Cuberdon"
 __licence__ = "MIT"
 
+
 def open_file(path):
     """ Shortcut for opening a file """
     return open(path,'r').read()
+
 
 def replace_strings(content):
     """ Replace all strings with our to avoid possible conflict. """
@@ -43,7 +45,8 @@ def replace_strings(content):
         count += 1
         
     return content, fall
-    
+
+
 def strip_empty_lines(content):
     io = StringIO(content)
     content = ''
@@ -53,14 +56,16 @@ def strip_empty_lines(content):
             continue
         content += line + '\n'
     return content
-    
+
+
 def put_strings(content, stringlist):
     count = 0
     for s in stringlist:
         content = content.replace('__{%d}__' % count, s)
         count += 1
     return content
-    
+
+
 def strip_comments(content):
     """ Remove C and C++ comments """
     take_care = re.findall(r"""(['|"].*?//.*?['|"])""", content)
@@ -82,22 +87,28 @@ def strip_comments(content):
     
     return content
 
+
 def remove_windows_eol(content):
     return re.sub(r'\r','',content)
+
 
 def remove_semi_colon(content):
     return re.sub(r'[\n|\r\n];','', content)
 
+
 def remove_eol(content):
     return re.sub(r'\n','',content)
-    
+
+
 def remove_unneeded_semi_colon(content):
     return re.sub(r';}','}', content)
+
 
 def remove_double_space_or_tabs(content):
     while re.search(r'\t|\s\s', content):
         content = re.sub(r'\t|\s\s', ' ', content)
     return content
+
 
 def remove_unneeded_spaces(content):
     content = re.sub(r'\s+=\s+', '=', content)
@@ -117,9 +128,11 @@ def remove_unneeded_spaces(content):
     
     return content
 
+
 def remove_trailing_slashes(content):
     """ Remove \ at the end of a string """
     return re.sub(r'\\\n|\\\n\s+|\\\s+\n','', content)
+
 
 def get_javascript_files(path):
     files = []
@@ -136,7 +149,8 @@ def get_javascript_files(path):
         files.append(f)
         
     return files
-    
+
+
 def verbose(msg):
     """ Display processing informations """
     if args.verbose:
@@ -195,6 +209,7 @@ def process_files(files):
         except IOError as e:
             sys.stderr.write("%s\n" % e)
     return size_before, output
+
 
 def write_colored(status, string):
     attr = ['1',]
@@ -285,4 +300,4 @@ if __name__ == '__main__':
             print "After : ", size_after
             gain = (1.0 - (float(size_after)/ float(size_before))) * 100
             print "Gain : %.2f %%" % gain
-                
+
