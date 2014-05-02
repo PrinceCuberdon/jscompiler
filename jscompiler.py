@@ -225,16 +225,22 @@ if __name__ == '__main__':
     # Create arguments parser
     parser = argparse.ArgumentParser(description="Compile Javascript files",
                                      epilog="""Caution: Javascript syntax is not checked""")
-    parser.add_argument('--input', '-i', type=str, dest="input", metavar="COMMA_SEPARATED_FILES")
-    parser.add_argument('--output', '-o', type=str, dest='output', metavar="OUTPUTFILE")
-    parser.add_argument('--directory', '-d', type=str, dest="directory")
-    parser.add_argument('--recursive', '-r', const=True, action="store_const", default=False)
+    parser.add_argument('--input', '-i', type=str, dest="input", metavar="COMMA_SEPARATED_FILES",
+                        help="Set the input file. For more than one file, separate them with a comma (eg: file1,file2)")
+    parser.add_argument('--output', '-o', type=str, dest='output', metavar="OUTPUTFILE",
+                        help="Set the output file. It will override the existing one without warnings")
+    parser.add_argument('--directory', '-d', type=str, dest="directory",
+                        help="Explore the directory")
+    parser.add_argument('--recursive', '-r', const=True, action="store_const", default=False,
+                        help="Explore the directory recurcivly")
     parser.add_argument('--show-infos', '-s', const=True, action="store_const", default=False,
                         help="Display informations about compilation on stderr")
-    parser.add_argument('--join', '-j', const=True, action='store_const', default=False, help="Simply join files")
+    parser.add_argument('--join', '-j', const=True, action='store_const', default=False,
+                        help="Simply join files")
     parser.add_argument('--makefile', '-f', type=str, dest='makefile', metavar="JSCOMPILER_MAKEFILE",
                         help="Use the makefile instead the command line")
-    parser.add_argument('--verbose', '-v', const=True, action="store_const", default=False)
+    parser.add_argument('--verbose', '-v', const=True, action="store_const", default=False,
+                        help="Be as verbose as possible")
     parser.add_argument('--merge', '-m', const=True, action="store_const", default=False,
                         help="Simply merge files without compiling (useful for minimified libraries)")
     
