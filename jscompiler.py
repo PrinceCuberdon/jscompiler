@@ -27,13 +27,13 @@ import os
 from cStringIO import StringIO
 
 __version__ = '0.1'
-__author__ = u"Prince Cuberdon"
+__author__ = "Prince Cuberdon"
 __licence__ = "MIT"
 
 
 def open_file(path):
     """ Shortcut for opening a file """
-    return open(path,'r').read()
+    return open(path, 'r').read()
 
 
 def replace_strings(content):
@@ -89,19 +89,19 @@ def strip_comments(content):
 
 
 def remove_windows_eol(content):
-    return re.sub(r'\r','',content)
+    return re.sub(r'\r', '', content)
 
 
 def remove_semi_colon(content):
-    return re.sub(r'[\n|\r\n];','', content)
+    return re.sub(r'[\n|\r\n];', '', content)
 
 
 def remove_eol(content):
-    return re.sub(r'\n','',content)
+    return re.sub(r'\n', '', content)
 
 
 def remove_unneeded_semi_colon(content):
-    return re.sub(r';}','}', content)
+    return re.sub(r';}', '}', content)
 
 
 def remove_double_space_or_tabs(content):
@@ -131,50 +131,50 @@ def remove_unneeded_spaces(content):
 
 def remove_trailing_slashes(content):
     """ Remove \ at the end of a string """
-    return re.sub(r'\\\n|\\\n\s+|\\\s+\n','', content)
+    return re.sub(r'\\\n|\\\n\s+|\\\s+\n', '', content)
 
 
 def get_javascript_files(path):
-    files = []
+    _files = []
     if not os.path.exists(path):
         raise Exception(path + " don't exists")
-    for f in os.listdir(path):
-        f = os.path.join(path, f)
-        name, ext=  os.path.splitext(f)
-        if os.path.isdir(f):
-            files += get_javascript_files(f)
+    for a_file in os.listdir(path):
+        a_file = os.path.join(path, a_file)
+        name, ext = os.path.splitext(a_file)
+        if os.path.isdir(a_file):
+            _files += get_javascript_files(a_file)
             continue
         elif ext.lower() != '.js':
             continue
-        files.append(f)
+        _files.append(a_file)
         
-    return files
+    return _files
 
 
 def verbose(msg):
     """ Display processing informations """
     if args.verbose:
-        sys.stderr.write('%s\n' %  msg)
+        sys.stderr.write('%s\n' % msg)
         
 
-def process_files(files):
+def process_files(file_list):
     """ Process """
-    size_before = 0
-    output = ''
+    _size_before = 0
+    _output = ''
     
-    for f in files:
+    for _file in file_list:
         content = ''
         try:
-            verbose('Open %s file' % f)
-            content = open_file(f)
-            size_before += len(content)
+            verbose('Open %s file' % _file)
+            content += open_file(_file)
+            _size_before += len(content)
             
             if not args.merge:
                 verbose("Strip comments")
                 content = strip_comments(content)
                 
                 verbose('Substitute strings to avoid conflict')
-                content, stringlist = replace_strings(content)
+                content, string_list = replace_strings(content)
             
                 verbose("Strip empty lines")
                 content = strip_empty_lines(content)
@@ -201,22 +201,22 @@ def process_files(files):
                 content = remove_unneeded_spaces(content)
                 
                 verbose('Restore strings')
-                content = put_strings(content, stringlist)
+                content = put_strings(content, string_list)
             
             verbose('Merging files')
-            output += content + '\n'
+            _output += content + '\n'
             verbose('Done')
         except IOError as e:
             sys.stderr.write("%s\n" % e)
-    return size_before, output
+    return size_before, _output
 
 
 def write_colored(status, string):
-    attr = ['1',]
-    if status == False:
-        attr.append('31') # Green
+    attr = ['1', ]
+    if not status:
+        attr.append('31')  # Green
     else:
-        attr.append('32') # red
+        attr.append('32')  # red
     sys.stdout.write('\x1b[%sm%s\x1b[0m' % (';'.join(attr), string))
 
 if __name__ == '__main__':
@@ -229,18 +229,21 @@ if __name__ == '__main__':
     parser.add_argument('--output', '-o', type=str, dest='output', metavar="OUTPUTFILE")
     parser.add_argument('--directory', '-d', type=str, dest="directory")
     parser.add_argument('--recursive', '-r', const=True, action="store_const", default=False)
-    parser.add_argument('--show-infos', '-s', const=True, action="store_const", default=False, help="Display informations about compilation on stderr")
+    parser.add_argument('--show-infos', '-s', const=True, action="store_const", default=False,
+                        help="Display informations about compilation on stderr")
     parser.add_argument('--join', '-j', const=True, action='store_const', default=False, help="Simply join files")
-    parser.add_argument('--makefile', '-f', type=str, dest='makefile',metavar="JSCOMPILER_MAKEFILE", help="Use the makefile instead the command line")
+    parser.add_argument('--makefile', '-f', type=str, dest='makefile', metavar="JSCOMPILER_MAKEFILE",
+                        help="Use the makefile instead the command line")
     parser.add_argument('--verbose', '-v', const=True, action="store_const", default=False)
-    parser.add_argument('--merge', '-m', const=True, action="store_const", default=False, help="Simply merge files without compiling (useful for minimified libraries)")
+    parser.add_argument('--merge', '-m', const=True, action="store_const", default=False,
+                        help="Simply merge files without compiling (useful for minimified libraries)")
     
     # Parse arguments
     global args
     args = parser.parse_args()
 
     if len(sys.argv) == 1:
-        sys.exit("You might at least give an arguement")
+        sys.exit("You might at least give an argument")
 
     if args.directory and args.input:
         sys.exit('--directory and --input exclude one each other')
@@ -250,37 +253,37 @@ if __name__ == '__main__':
         # Yes. Try to understand makefile
         make = eval(open(args.makefile, "r").read())
         for key in make:
-            if not make[key].has_key('action'):
-                make[key]['action'] = 'merge' # Default
-            if not make[key].has_key('files'):
+            if not 'action' in make[key]:
+                make[key]['action'] = 'merge'  # Default
+            if not 'files' in make[key]:
                 sys.exit("Error : '%s' have no files defined. What can I do with that !" % key)
-            if not make[key].has_key('outputdirectory'):
+            if not 'outputdirectory' in make[key]:
                 make[key]['outputdirectory'] = os.path.abspath('./')
         
         for key in make:
-            outputname = os.path.join(make[key]['outputdirectory'], '%s.js' % key)
+            output_name = os.path.join(make[key]['outputdirectory'], '%s.js' % key)
             output = ''
             error = False
             for f in make[key]['files']:
                 print "Processing: %s" % f
                 if make[key]['action'] == 'merge':
                     try:
-                        output += open(f,'r').read()
-                    except:
+                        output += open(f, 'r').read()
+                    except IOError:
                         write_colored(False, "File not found: %s\n" % f)
                         error = True
                 elif make[key]['action'] == 'compile':
-                    size, o = process_files([f,])
+                    size, o = process_files([f, ])
                     output += o
                 else:
                     sys.exit('Unknow action : %s' % make[key]['action'])
 
-            if error == False:
-                write_colored(True, "Generating: %s\n" % outputname)
+            if not error:
+                write_colored(True, "Generating: %s\n" % output_name)
                 print
-                open(outputname,'w').write(output)
+                open(output_name, 'w').write(output)
             else:
-                write_colored(False, "Fail to compile %s\n" % outputname)
+                write_colored(False, "Fail to compile %s\n" % output_name)
     else:
         # No. Use command line for options
         files = []
@@ -300,6 +303,5 @@ if __name__ == '__main__':
         if args.show_infos:
             sys.stderr.write("Before : %d\n" % size_before)
             print "After : ", size_after
-            gain = (1.0 - (float(size_after)/ float(size_before))) * 100
+            gain = (1.0 - (float(size_after) / float(size_before))) * 100
             print "Gain : %.2f %%" % gain
-
