@@ -32,12 +32,17 @@ __licence__ = "MIT"
 
 
 def open_file(path):
-    """ Shortcut for opening a file """
+    """
+    Shortcut for opening a file
+    Returns the file content
+    """
     return open(path, 'r').read()
 
 
 def replace_strings(content):
-    """ Replace all strings with our to avoid possible conflict. """
+    """
+    Replace all strings with our to avoid possible conflict.
+    """
     fall = re.findall(r''''.*?'|".*?"''', content)
     count = 0
     for stri in fall:
@@ -48,6 +53,8 @@ def replace_strings(content):
 
 
 def strip_empty_lines(content):
+    """ Remove empty lines
+    """
     io = StringIO(content)
     content = ''
     for line in io:
@@ -58,16 +65,20 @@ def strip_empty_lines(content):
     return content
 
 
-def put_strings(content, stringlist):
+def put_strings(content, string_list):
+    """ Put the stored strings
+    """
     count = 0
-    for s in stringlist:
+    for s in string_list:
         content = content.replace('__{%d}__' % count, s)
         count += 1
     return content
 
 
 def strip_comments(content):
-    """ Remove C and C++ comments """
+    """ Remove C and C++ comments.
+    To avoid problem, strings are stored, then the file processed
+    """
     take_care = re.findall(r"""(['|"].*?//.*?['|"])""", content)
     count = 0
     for str_to_takecare in take_care:
@@ -89,28 +100,43 @@ def strip_comments(content):
 
 
 def remove_windows_eol(content):
+    """ Remove windows end of line if exists
+    """
     return re.sub(r'\r', '', content)
 
 
 def remove_semi_colon(content):
+    """ Remove semicolon at the end of the file
+    """
     return re.sub(r'[\n|\r\n];', '', content)
 
 
 def remove_eol(content):
+    """ Remove the end of line
+    """
     return re.sub(r'\n', '', content)
 
 
 def remove_unneeded_semi_colon(content):
+    """
+    Remove semicolon if it is before a bracket
+    """
     return re.sub(r';}', '}', content)
 
 
 def remove_double_space_or_tabs(content):
+    """
+    Remove identation
+    """
     while re.search(r'\t|\s\s', content):
         content = re.sub(r'\t|\s\s', ' ', content)
     return content
 
 
 def remove_unneeded_spaces(content):
+    """
+    Remove uneeded space. In JS var a = 1; is equal to var a=1;
+    """
     content = re.sub(r'\s+=\s+', '=', content)
     content = re.sub(r'\s+==\s+', '==', content)
     content = re.sub(r'\s+===\s+', '===', content)
@@ -130,11 +156,16 @@ def remove_unneeded_spaces(content):
 
 
 def remove_trailing_slashes(content):
-    """ Remove \ at the end of a string """
+    """
+    Remove \ at the end of a string
+    """
     return re.sub(r'\\\n|\\\n\s+|\\\s+\n', '', content)
 
 
 def get_javascript_files(path):
+    """ Get all javascript files in the given path
+    Returns a list of string
+    """
     _files = []
     if not os.path.exists(path):
         raise Exception(path + " don't exists")
@@ -152,13 +183,18 @@ def get_javascript_files(path):
 
 
 def verbose(msg):
-    """ Display processing informations """
+    """
+    Display processing information if the verbose option is set
+    """
     if args.verbose:
         sys.stderr.write('%s\n' % msg)
         
 
 def process_files(file_list):
-    """ Process """
+    """
+    Process all the files
+    returns a tuple: the size before and the compiled content
+    """
     _size_before = 0
     _output = ''
     
@@ -212,6 +248,9 @@ def process_files(file_list):
 
 
 def write_colored(status, string):
+    """
+    Write the command line with colors
+    """
     attr = ['1', ]
     if not status:
         attr.append('31')  # Green
@@ -219,7 +258,9 @@ def write_colored(status, string):
         attr.append('32')  # red
     sys.stdout.write('\x1b[%sm%s\x1b[0m' % (';'.join(attr), string))
 
+
 if __name__ == '__main__':
+    # The file is executed within a terminal
     size_after = 0
     
     # Create arguments parser
